@@ -1,7 +1,7 @@
 version: "3.3"
 
 services:
-  backend:
+  bot:
     build:
       dockerfile: docker/bot/Dockerfile
       context: .
