@@ -2,7 +2,10 @@ import logging
 
 from aiogram import Bot, Dispatcher, executor, types
 
-from constants import TELEGRAM_TOKEN, START_CMD, HELP_CMD, EXAM_INFO, NOT_EXAMS, EXAMS_ARE_EXIST, SPLIT_LINE
+from constants import (
+    TELEGRAM_TOKEN, START_CMD, HELP_CMD, EXAM_INFO,
+    NOT_EXAMS, EXAMS_ARE_EXIST, EXAM_NUMBER, SEVER_RESPONSE_MESSAGE
+)
 from service import get_session_timetable
 
 
@@ -28,21 +31,19 @@ async def help(message: types.Message):
 
 @dp.message_handler()
 async def session(message: types.Message):
-    exams = get_session_timetable(message.text)
-    if exams is None:
-        return await bot.send_message(message.chat.id, NOT_EXAMS.format(group_name=message.text))
-    result_message = EXAMS_ARE_EXIST.format(group_name=message.text)
-    for exam in exams:
-        result_message += EXAM_INFO.format(
-            subject_name=exam['subject'][1],
-            professor=exam['professor_name'],
-            date=exam['date'],
-            time=exam['time'],
-            room=exam['room'],
-            day_week=exam['day_week']
-        )
-        result_message += SPLIT_LINE
-    return await bot.send_message(message.chat.id, result_message)
+    result_message = ''
+    exams, error = get_session_timetable(message.text)
+
+    if error:
+        result_message += NOT_EXAMS.format(group_name=message.text)
+        result_message += SEVER_RESPONSE_MESSAGE.format(server_message=error)
+        return await bot.send_message(message.chat.id, result_message, parse_mode='HTML')
+
+    result_message += EXAMS_ARE_EXIST.format(group_name=message.text)
+    for i, exam in enumerate(exams):
+        result_message += EXAM_NUMBER.format(number=i+1)
+        result_message += EXAM_INFO.format(**exam)
+    return await bot.send_message(message.chat.id, result_message, parse_mode='HTML')
 
 
 if __name__ == '__main__':
