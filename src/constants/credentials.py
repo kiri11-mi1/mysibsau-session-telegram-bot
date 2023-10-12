@@ -1,4 +1,0 @@
-import os
-
-TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
-SESSION_BACKEND_HOST = os.environ.get('SESSION_BACKEND_HOST')

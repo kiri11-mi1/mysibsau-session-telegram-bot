@@ -6,6 +6,6 @@ services:
       dockerfile: docker/bot/Dockerfile
       context: .
     restart: always
-    command: bash -c "python main.py"
+    # command: 
     env_file:
       - .env
