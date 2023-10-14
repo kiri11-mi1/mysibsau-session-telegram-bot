@@ -11,6 +11,7 @@ async fn main() {
 
     Command::repl(bot, answer).await;
 }
+
 #[derive(BotCommands, Clone)]
 #[command(rename_rule = "lowercase", description = "Доступные команды:")]
 enum Command {
