@@ -1,4 +1,4 @@
-use teloxide::{prelude::*, utils::command::BotCommands};
+use teloxide::prelude::*;
 
 #[tokio::main]
 async fn main() {
@@ -9,22 +9,27 @@ async fn main() {
 
     let bot = Bot::from_env();
 
-    Command::repl(bot, answer).await;
+    teloxide::repl(bot, answer).await;
 }
 
-#[derive(BotCommands, Clone)]
-#[command(rename_rule = "lowercase", description = "Доступные команды:")]
-enum Command {
-    #[command(description = "Помогатор по командам.")]
-    Help,
-    #[command(description = "Начало работы с ботом.")]
-    Start,
-}
-
-async fn answer(bot: Bot, msg: Message, cmd: Command) -> ResponseResult<()> {
-    match cmd {
-        Command::Help => bot.send_message(msg.chat.id, Command::descriptions().to_string()).await?,
-        Command::Start => bot.send_message(msg.chat.id, "Привет, чтобы узнать расписание сессии, просто введи название своей группы. Регистр не важен.").await?,
+async fn answer(bot: Bot, msg: Message) -> ResponseResult<()> {
+    let msg_text = msg.text();
+    if msg_text.is_none() {
+        bot.send_message(msg.chat.id, "Не понимаю. Введите текстовое сообщение.")
+            .await?;
+        return Ok(());
+    }
+    match msg_text.unwrap() {
+        "/start" => bot.send_message(msg.chat.id, "Привет, чтобы узнать расписание сессии, просто введи название своей группы. Регистр не важен.").await?,
+        _ => {
+            let exams = search_exams(msg_text.unwrap()).await;
+            bot.send_message(msg.chat.id, exams).await?   
+        }
     };
     Ok(())
+}
+
+async fn search_exams(group: &str) -> String {
+    let result_text = "Получение расписания по запросу: ".to_owned() + group;
+    return result_text
 }
