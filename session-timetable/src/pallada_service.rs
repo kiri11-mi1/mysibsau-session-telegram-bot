@@ -64,7 +64,7 @@ impl PalladaService {
             "date".to_string(),
         ];
         let now = Utc::now();
-        let domain = jvec![["group", "=", group_id], ["date", "=>", now.to_string()]];
+        let domain = jvec![["group", "=", group_id], ["date", "=>", now.to_string()]]; // TODO: подумать здесь
         let order = "date asc".to_string();
 
         let response = self
@@ -84,7 +84,7 @@ impl PalladaService {
             log::error!("{:?}", response.err());
             return None;
         }
-        let data = response.ok()?;
+        let data = response.ok()?; // TODO: обернуть в структуру
         let mut result = vec![];
         for exam in data.data {
             result.push(format!(
