@@ -1,4 +1,8 @@
+mod pallada_service;
+
+use pallada_service::PalladaService;
 use teloxide::prelude::*;
+
 
 #[tokio::main]
 async fn main() {
@@ -30,6 +34,11 @@ async fn answer(bot: Bot, msg: Message) -> ResponseResult<()> {
 }
 
 async fn search_exams(group: &str) -> String {
-    let result_text = "Получение расписания по запросу: ".to_owned() + group;
+    let mut pds = PalladaService::new().await;
+    let group_id = pds.find_group_by_name(String::from(group)).await;
+    if group_id.is_none() {
+        return String::from("Группа с таким именем не найдена.");
+    }
+    let result_text = format!("Группа {} имеет id {}", group, group_id.unwrap());
     return result_text
 }
