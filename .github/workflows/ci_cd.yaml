@@ -16,6 +16,9 @@ jobs:
         uses: SpicyPizza/create-envfile@v1.3
         with:
           envkey_TELOXIDE_TOKEN: ${{ secrets.TELOXIDE_TOKEN }}
+          envkey_PALADA_ADMIN: ${{ secrets.PALADA_ADMIN }}
+          envkey_PALADA_DATABASE: ${{ secrets.PALADA_DATABASE }}
+          envkey_PALADA_PASSWORD: ${{ secrets.PALADA_PASSWORD }}
           directory: ./
           file_name: .env
           fail_on_empty: true
