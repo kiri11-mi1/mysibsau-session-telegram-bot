@@ -38,8 +38,17 @@ async fn search_exams(group: &str) -> String {
     let mut pds = PalladaService::new().await;
     let group_id = pds.find_group_by_name(String::from(group)).await;
     if group_id.is_none() {
-        return String::from("Группа с таким именем не найдена.");
+        return "Группа с таким именем не найдена.".to_string();
     }
-    let result_text = format!("Группа {} имеет id {}", group, group_id.unwrap());
+    let timetable_list = pds.get_exams_timetable(group_id.unwrap()).await;
+    if timetable_list.is_none() {
+        return "Расписание экзаменов пока отсуствует.".to_string();
+    }
+    let exams = timetable_list.unwrap();
+    for exam in exams {
+        println!("{}", exam);
+    }
+
+    let result_text = format!("Группа {}.", group);
     return result_text
 }
