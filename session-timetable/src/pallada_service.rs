@@ -46,4 +46,46 @@ impl PalladaService {
         }
         return Option::from(groups.data[0].id);
     }
+
+    pub async fn get_exams_timetable(&mut self, group_id: i64) -> Option<Vec<String>> {
+        let fields = vec![
+            "year".to_string(),
+            "group".to_string(),
+            "employee_name_init".to_string(),
+            "lesson".to_string(),
+            "place".to_string(),
+            "day_week".to_string(),
+            "time".to_string(),
+            "date".to_string(),
+        ];
+        let domain = jvec![["group", "=", group_id], ["date", "!=", false]];
+        let order = "date desc".to_string();
+        let response = self
+            .client
+            .search_read(
+                "info.timetable",
+                domain,
+                fields,
+                None,
+                None,
+                Option::from(order),
+            )
+            .send()
+            .await;
+
+        if response.is_err() {
+            log::error!("{:?}", response.err());
+            return None;
+        }
+        let data = response.ok()?;
+        let mut result = vec![];
+        for exam in data.data {
+            result.push(format!(
+                "Название: {} - Дата: {}\n",
+                exam["lesson"].to_string(),
+                exam["date"].to_string()
+            ))
+        }
+        return Option::from(result);
+    }
 }
