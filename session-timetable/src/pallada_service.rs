@@ -1,4 +1,5 @@
 use crate::schemas::GroupList;
+use chrono::Utc;
 use odoo_api::{client, jvec, OdooClient};
 use std::env::var;
 
@@ -7,7 +8,7 @@ pub struct PalladaService {
 }
 
 impl PalladaService {
-    pub async fn new() -> Self {
+    pub async fn new() -> Option<Self> {
         let database = var("PALADA_DATABASE").expect("PALADA_DATABASE env doesnt exist");
         let login = var("PALADA_ADMIN").expect("PALADA_ADMIN env doesnt exist");
         let password = var("PALADA_PASSWORD").expect("PALADA_PASSWORD env doesnt exist");
@@ -17,10 +18,14 @@ impl PalladaService {
         let client = OdooClient::new_reqwest_async(&url)
             .expect("Error via creating odoo client")
             .authenticate(&database, &login, &password)
-            .await
-            .expect("Auth error");
+            .await;
 
-        return PalladaService { client: client };
+        if client.is_err() {
+            log::error!("{:?}", client.err());
+            return None;
+        }
+        let client_ok = client.ok()?;
+        return Option::from(PalladaService { client: client_ok });
     }
 
     pub async fn find_group_by_name(&mut self, name: String) -> Option<i64> {
@@ -58,8 +63,10 @@ impl PalladaService {
             "time".to_string(),
             "date".to_string(),
         ];
-        let domain = jvec![["group", "=", group_id], ["date", "!=", false]];
-        let order = "date desc".to_string();
+        let now = Utc::now();
+        let domain = jvec![["group", "=", group_id], ["date", "=>", now.to_string()]];
+        let order = "date asc".to_string();
+
         let response = self
             .client
             .search_read(
