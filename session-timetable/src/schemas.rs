@@ -8,6 +8,7 @@ pub struct Group {
 }
 
 impl From<Map<String, Value>> for Group {
+    // Сериализатор для группы
     fn from(value: Map<String, Value>) -> Self {
         Self {
             id: value["id"].as_i64().unwrap(),
@@ -21,6 +22,7 @@ pub struct GroupList {
 }
 
 impl From<Vec<Map<String, Value>>> for GroupList {
+    // Сериализатор для списка групп
     fn from(items: Vec<Map<String, Value>>) -> Self {
         let mut result = vec![];
         for v in items {
