@@ -1,3 +1,4 @@
+use crate::schemas::GroupList;
 use odoo_api::{client, jvec, OdooClient};
 use std::env::var;
 
@@ -23,7 +24,7 @@ impl PalladaService {
     }
 
     pub async fn find_group_by_name(&mut self, name: String) -> Option<i64> {
-        let fields = vec![String::from("name"), String::from("id")];
+        let fields = vec!["name".to_string(), "id".to_string()];
         let domain = jvec![["name", "=", name.to_uppercase()]];
 
         let response = self
@@ -38,14 +39,11 @@ impl PalladaService {
         }
         let data = response.ok()?;
 
-        let groups = data.data;
-        if groups.len() == 0 {
+        let groups = GroupList::from(data.data);
+        if groups.data.len() == 0 {
             log::info!("Empty result");
             return None;
         }
-
-        let target_group = &groups[0];
-        let target_id = &target_group["id"];
-        return target_id.as_i64();
+        return Option::from(groups.data[0].id);
     }
 }
