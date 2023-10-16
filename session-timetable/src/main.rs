@@ -1,4 +1,5 @@
 mod pallada_service;
+mod schemas;
 
 use pallada_service::PalladaService;
 use teloxide::prelude::*;
