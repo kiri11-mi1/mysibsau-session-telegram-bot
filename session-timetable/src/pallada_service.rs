@@ -1,4 +1,4 @@
-use crate::schemas::GroupList;
+use crate::schemas::{Exam, Group, List};
 use chrono::Utc;
 use odoo_api::{client, jvec, OdooClient};
 use std::env::var;
@@ -44,7 +44,7 @@ impl PalladaService {
         }
         let data = response.ok()?;
 
-        let groups = GroupList::from(data.data);
+        let groups: List<Group> = List::from(data.data);
         if groups.data.len() == 0 {
             log::info!("Empty result");
             return None;
@@ -52,7 +52,7 @@ impl PalladaService {
         return Option::from(groups.data[0].id);
     }
 
-    pub async fn get_exams_timetable(&mut self, group_id: i64) -> Option<Vec<String>> {
+    pub async fn get_exams_timetable(&mut self, group_id: i64) -> Option<Vec<Exam>> {
         let fields = vec![
             "year".to_string(),
             "group".to_string(),
@@ -64,7 +64,7 @@ impl PalladaService {
             "date".to_string(),
         ];
         let now = Utc::now();
-        let domain = jvec![["group", "=", group_id], ["date", "=>", now.to_string()]]; // TODO: подумать здесь
+        let domain = jvec![["group", "=", group_id], ["date", "<=", now.to_string()]]; // TODO: поменять на =>
         let order = "date asc".to_string();
 
         let response = self
@@ -74,7 +74,7 @@ impl PalladaService {
                 domain,
                 fields,
                 None,
-                None,
+                Option::from(4), // TODO: убрать лимит
                 Option::from(order),
             )
             .send()
@@ -84,15 +84,8 @@ impl PalladaService {
             log::error!("{:?}", response.err());
             return None;
         }
-        let data = response.ok()?; // TODO: обернуть в структуру
-        let mut result = vec![];
-        for exam in data.data {
-            result.push(format!(
-                "Название: {} - Дата: {}\n",
-                exam["lesson"].to_string(),
-                exam["date"].to_string()
-            ))
-        }
-        return Option::from(result);
+        let data = response.ok()?;
+        let exams: List<Exam> = List::from(data.data);
+        return Option::from(exams.data);
     }
 }
