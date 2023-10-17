@@ -85,6 +85,9 @@ impl PalladaService {
             return None;
         }
         let data = response.ok()?;
+        if data.data.len() == 0 {
+            return None;
+        }
         let exams: List<Exam> = List::from(data.data);
         return Option::from(exams.data);
     }
