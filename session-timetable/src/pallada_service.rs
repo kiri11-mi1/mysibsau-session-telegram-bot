@@ -64,7 +64,7 @@ impl PalladaService {
             "date".to_string(),
         ];
         let now = Utc::now();
-        let domain = jvec![["group", "=", group_id], ["date", "<=", now.to_string()]]; // TODO: поменять на =>
+        let domain = jvec![["group", "=", group_id], ["date", ">=", now.to_string()]];
         let order = "date asc".to_string();
 
         let response = self
@@ -74,7 +74,7 @@ impl PalladaService {
                 domain,
                 fields,
                 None,
-                Option::from(4), // TODO: убрать лимит
+                None,
                 Option::from(order),
             )
             .send()
