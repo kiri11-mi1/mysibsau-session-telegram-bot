@@ -1,6 +1,6 @@
-FROM rust:1.73.0
+FROM rust:1.73.0-buster
 
-ADD ./session-timetable /app
+COPY ./session-timetable /app
 
 WORKDIR /app
 
