@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-use crate::helpers::{fetch_day_name, fetch_normal_time};
+use crate::helpers::{fetch_day_name, fetch_lesson_name};
 use std::convert::From;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -34,12 +34,15 @@ impl From<Map<String, Value>> for Exam {
     // Сериализатор для экзамена
     fn from(value: Map<String, Value>) -> Self {
         Self {
-            proffessor: value["employee_name_init"].to_string(),
-            lesson: value["lesson"].to_string(),
-            room: value["place"].to_string(),
-            date: value["date"].to_string(),
+            proffessor: value["employee_name_init"].to_string().replace("\"", ""),
+            lesson: fetch_lesson_name(value["lesson"].clone()),
+            room: value["place"]
+                .to_string()
+                .replace("\\\"", "")
+                .replace("\"", ""),
+            date: value["date"].to_string().replace("\"", ""),
             day_week: fetch_day_name(value["day_week"].as_str().unwrap()),
-            time: fetch_normal_time(value["time"].as_str().unwrap()),
+            time: value["time"].to_string().replace("-", "").replace("\"", ""),
         }
     }
 }
