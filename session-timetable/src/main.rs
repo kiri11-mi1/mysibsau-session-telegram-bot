@@ -13,7 +13,7 @@ async fn main() {
     pretty_env_logger::init();
     dotenv::dotenv().ok();
 
-    log::info!("Starting throw dice bot...");
+    log::info!("Starting timetable bot...");
 
     let bot = Bot::from_env();
     teloxide::repl(bot, answer).await;
